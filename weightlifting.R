@@ -4,6 +4,7 @@ library(caret)
 library(zoo)
 library(lubridate)
 library(eeptools)
+
 Book1 <- read_excel("Book1.xlsx")
 
 ## removing the = and " from the data
@@ -94,28 +95,10 @@ df$comp_date <- paste("01",substr(df$date,1,2), substr(df$date,4,7), sep = "-")
 df$born_date <- as.Date(df$born_date, "%d-%m-%Y")
 df$comp_date <- as.Date(df$comp_date, "%d-%m-%Y")
 df$age <- age_calc(df$born_date, enddate = df$comp_date, units = "years")
-
-##Modelling
-Train <- createDataPartition(df$medal, p=0.8, list=FALSE)
-training <- df[ Train, ]
-testing <- df[ -Train, ]
-
-
-mod_fit <- train(as.factor(medal) ~ as.factor(gender) + as.factor(nation) + bw + age + diff_snatch + diff_jerk + as.factor(bomb),  data=training, method="glm", family="binomial")
-#exp(coef(mod_fit$finalModel))
-predict(mod_fit, newdata=testing, type="prob")
-pred = predict(mod_fit, newdata=testing)
-accuracy <- table(pred, testing[,"medal"])
-sum(diag(accuracy))/sum(accuracy)
-accuracy
-
-
-mod_fit2 <- train(as.factor(medal) ~ as.factor(gender) + as.factor(nation) + bw + age ,  data=training, method="glm", family="binomial")
-predict(mod_fit2, newdata=testing, type="prob")
-pred2 = predict(mod_fit2, newdata=testing)
-accuracy2 <- table(pred2, testing[,"medal"])
-sum(diag(accuracy2))/sum(accuracy2)
-accuracy2
+df$bweight <- as.numeric(df$bweight)
+## model dataset
+df_model <- df %>% 
+  select(medal, gender,  nation, category, bweight,  bomb, year, month, bw, age, diff_jerk, diff_snatch)
 
 
 
