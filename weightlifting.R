@@ -4,6 +4,8 @@ library(caret)
 library(zoo)
 library(lubridate)
 library(eeptools)
+library(mlbench)
+library(doParallel)
 
 Book1 <- read_excel("Book1.xlsx")
 
@@ -89,16 +91,19 @@ df$category <- ifelse(df$category=="88",df88$mean,df$category)
 df$category <- ifelse(df$category=="110",df110$mean,df$category)
 
 ## adding some featrues
-df$bw <- abs(as.numeric(as.character(df$category))-as.numeric(as.character(df$bweight)))
+df$bw_diff <- abs(as.numeric(as.character(df$category))-as.numeric(as.character(df$bweight)))
 df$born_date <- paste("01",df$month, df$year, sep = "-")
 df$comp_date <- paste("01",substr(df$date,1,2), substr(df$date,4,7), sep = "-")
 df$born_date <- as.Date(df$born_date, "%d-%m-%Y")
 df$comp_date <- as.Date(df$comp_date, "%d-%m-%Y")
 df$age <- age_calc(df$born_date, enddate = df$comp_date, units = "years")
 df$bweight <- as.numeric(df$bweight)
+
+df$medal <- as.factor(df$medal)
+df$bomb <- as.factor(df$bomb)
 ## model dataset
 df_model <- df %>% 
-  select(medal, gender,  nation, category, bweight,  bomb, year, month, bw, age, diff_jerk, diff_snatch)
+  select(medal, gender,  nation, category,bomb, year, month, bw_diff, age, diff_jerk, diff_snatch)
 
 
 
