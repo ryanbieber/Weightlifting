@@ -1,12 +1,12 @@
 library(readxl)
 library(dplyr)
 library(caret)
+library(caretEnsemble)
 library(zoo)
 library(lubridate)
 library(eeptools)
-library(mlbench)
-library(doParallel)
 
+##pulling in the data
 Book1 <- read_excel("Book1.xlsx")
 
 ## removing the = and " from the data
@@ -79,7 +79,7 @@ df$diff_snatch <- ifelse(is.na(df$diff_snatch),0,df$diff_snatch)
 df$category <- ifelse(as.character(df$category)=="p87", 88, as.character(df$category))
 df$category <- ifelse(as.character(df$category)=="p109", 110, as.character(df$category))
 
-
+## adding a new mean for the super heavys
 df88 <- df %>%
   subset(category=="88") %>%
   mutate(mean = median(as.numeric(bweight)))
@@ -98,12 +98,13 @@ df$born_date <- as.Date(df$born_date, "%d-%m-%Y")
 df$comp_date <- as.Date(df$comp_date, "%d-%m-%Y")
 df$age <- age_calc(df$born_date, enddate = df$comp_date, units = "years")
 df$bweight <- as.numeric(df$bweight)
-
 df$medal <- as.factor(df$medal)
 df$bomb <- as.factor(df$bomb)
+
 ## model dataset
 df_model <- df %>% 
-  select(medal, gender,  nation, category,bomb, year, month, bw_diff, age, diff_jerk, diff_snatch)
+  select(medal, gender,  nation, category,  bw_diff, age)
+
 
 
 
